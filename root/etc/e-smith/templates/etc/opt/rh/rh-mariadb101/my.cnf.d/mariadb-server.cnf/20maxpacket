@@ -1,0 +1,6 @@
+{
+  $max = ${'rh-mariadb101-mariadb'}{'MaxAllowedPacket'} || '';
+  return "max_allowed_packet=$max" unless ($max eq '');
+  return "";
+}
+

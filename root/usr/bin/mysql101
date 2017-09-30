@@ -1,0 +1,2 @@
+#!/bin/bash
+/opt/rh/rh-mariadb101/root/usr/bin/mysql --socket=/var/lib/rh-mariadb101/mariadb.sock "$@"

@@ -1,0 +1,4 @@
+{
+    my $localonly = ${'rh-mariadb101-mariadb'}{'LocalNetworkingOnly'} || "no";
+    $OUT = ($localonly eq 'yes') ? "skip-networking" : "# networking is enabled";
+}

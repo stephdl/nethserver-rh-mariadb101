@@ -1,0 +1,66 @@
+#!/usr/bin/perl -w
+
+use esmith::Build::CreateLinks  qw(:all);
+
+#--------------------------------------------------
+# actions for nethserver-mysql-update event
+#--------------------------------------------------
+
+my $event = "nethserver-rh-mariadb101-update";
+
+event_actions($event,
+              'initialize-default-databases' => '00',
+              'nethserver-rh-mariadb101-conf' => '10',
+              'rh-mariadb101-mysqld_service' => '20',
+              'nethserver-phpmyadmin-mariadbsettings-conf' => '25',
+              'nethserver-phpmyadmin-mariadb101-conf' => '30');
+templates2events("/etc/opt/rh/rh-mariadb101/my.cnf.d/mariadb-server.cnf",  $event);
+templates2events("/etc/logrotate.d/rh-mariadb101-mariadb",  $event);
+templates2events("/opt/rh/rh-mariadb101/root/bin/set.password",  $event);
+templates2events("/root/.my.cnf",  $event);
+
+#--------------------------------------------------
+# actions for nethserver-rh-mariadb101-save event
+#--------------------------------------------------
+
+$event = "nethserver-rh-mariadb101-save";
+
+templates2events("/etc/opt/rh/rh-mariadb101/my.cnf.d/mariadb-server.cnf",  $event);
+templates2events("/etc/logrotate.d/rh-mariadb101-mariadb",  $event);
+templates2events("/root/.my.cnf",  $event);
+
+event_actions($event,
+              'firewall-adjust' => '10',
+              'rh-mariadb101-mysqld_service' => '20');
+
+
+#--------------------------------------------------
+# actions for pre-backup-data event
+#--------------------------------------------------
+
+$event = "pre-backup-data";
+event_actions($event, 'rh-mariadb101-dump-tables' => 50);
+
+
+#--------------------------------------------------
+# actions for post-backup-data event
+#--------------------------------------------------
+
+$event = "post-backup-data";
+event_actions($event, 'rh-mariadb101-delete-dumped-tables' => 50);
+
+#--------------------------------------------------
+# actions for post-restore-data event
+#--------------------------------------------------
+
+$event = "post-restore-data";
+event_actions($event, 
+                     'rh-mariadb101-load-tables' => '02',
+                     'rh-mariadb101-delete-dumped-tables' => '60',
+                     'rh-mariadb101-mysqld_service' => '90');
+
+#templates2events("/etc/my.cnf",  $event);
+#templates2events("/root/.my.cnf",  $event);
+
+
+exit;

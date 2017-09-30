@@ -1,0 +1,20 @@
+#!/bin/sh
+
+backup_dir=/var/lib/nethserver/backup/rh-mariadb101/
+if [ ! -d $backup_dir ]; then
+    mkdir -p $backup_dir
+fi
+
+status=$(/sbin/e-smith/config getprop rh-mariadb101-mariadb status)
+if [ "$status" = "disabled" ]
+then
+    echo "rh-mariadb101-mariadb is disabled - no tables dumped" >&2
+    exit 0
+fi
+dbs=`mysql101 -BNre "show databases"` || exit 1
+for db in $(echo $dbs)
+do
+    if [[ ("$db" != "information_schema") && ("$db" != "performance_schema") ]]; then
+        mysqldump101 --events --skip-dump-date --ignore-table=mysql.event --single-transaction --quick --add-drop-table -QB "$db" -r $backup_dir/"$db".dump || exit 1
+    fi
+done

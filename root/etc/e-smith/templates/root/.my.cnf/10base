@@ -1,0 +1,11 @@
+[client]
+{
+    #----------------------------------------------------------
+    # Read (and possibly create) mysql password
+    #----------------------------------------------------------
+
+    use esmith::util;
+    use NethServer::Password;
+    my $pw = NethServer::Password::store('mysql');
+    $OUT .= "password=$pw";
+}

@@ -1,0 +1,58 @@
+#!/bin/sh
+#
+# This script will restore mariadb backup.
+# The script mut be executed before /etc/.my.cnf is replaced by an expand-template
+
+backup_dir=/var/lib/nethserver/backup/rh-mariadb101/
+
+if [ ! -f $backup_dir/mysql.dump ]; then
+    exit 0
+fi
+
+echo "Restoring mariadb backup...";
+/usr/bin/systemctl status rh-mariadb101-mariadb  >/dev/null
+if [ $? -eq 0 ]; then
+    /usr/bin/systemctl stop rh-mariadb101-mariadb >/dev/null
+fi
+
+# Restarting mysql without privileges
+/usr/bin/scl enable rh-mariadb101 '/opt/rh/rh-mariadb101/root/usr/bin/mysqld_safe --skip-grant-tables&'
+/usr/bin/mysql101 -e 'show databases' &> /dev/null
+while [ $? -ne 0 ]  # wait mysql to start
+do
+    sleep 1
+    /usr/bin/mysql101 -e 'show databases' &> /dev/null
+done
+
+
+# drop mysql db if exists (backup restored after nethserver-mysql install)
+/usr/bin/mysql101 -e "drop database mysql" 2>/dev/null
+/usr/bin/mysql101 < $backup_dir/mysql.dump
+if [ $? -ne 0 ]; then
+    echo "Can't load mysql.dump backup"
+    exit 1
+fi
+
+rm -f $backup_dir/mysql.dump
+
+newpass=$(cat /var/lib/nethserver/secrets/mysql)
+/usr/bin/mysql101 mysql -u root -e "update user set password=PASSWORD(\"$newpass\") where User='root'; flush privileges;"
+
+# Stop all mysql instances
+pkill -f /opt/rh/rh-mariadb101/root/usr/libexec/mysqld
+sleep 1
+
+# restart mysqld as normal daemon
+/usr/bin/systemctl restart rh-mariadb101-mariadb
+
+# update .my.cnf with new password
+/sbin/e-smith/expand-template /root/.my.cnf
+
+# restore all dumps
+for db in $(ls $backup_dir/*.dump 2> /dev/null)
+do
+    mv $db /etc/e-smith/sql/init101/01_$(basename $db .dump).sql
+done
+
+exec /etc/e-smith/events/actions/nethserver-rh-mariadb101-init
+

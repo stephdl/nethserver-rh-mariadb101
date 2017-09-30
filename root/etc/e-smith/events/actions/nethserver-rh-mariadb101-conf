@@ -1,0 +1,19 @@
+#!/usr/bin/perl
+
+use strict;
+use NethServer::Service;
+use esmith::util;
+use NethServer::Password;
+my $password = NethServer::Password::store('mysql');
+# initialize mysql installation
+
+my $backup_dir="/var/lib/nethserver/backup/rh-mariadb101/";
+
+## load existing dumps 
+if ( -f "$backup_dir/mysql.dump" ) {
+    system("/etc/e-smith/events/actions/rh-mariadb101-load-tables");
+} else { # or initialize the server
+system("/usr/bin/systemctl start rh-mariadb101-mariadb");
+system("/usr/bin/systemctl stop  rh-mariadb101-mariadb");
+system("/opt/rh/rh-mariadb101/root/usr/libexec/mysqld --datadir=/var/opt/rh/rh-mariadb101/lib/mysql --bootstrap --user=mysql --skip-grant-tables --explicit_defaults_for_timestamp < /opt/rh/rh-mariadb101/root/bin/set.password");
+    }

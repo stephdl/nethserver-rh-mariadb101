@@ -1,0 +1,2 @@
+#!/bin/bash
+/opt/rh/rh-mariadb101/root/usr/bin/mysqld_multi "$@"

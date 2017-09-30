@@ -1,0 +1,5 @@
+#!/bin/sh
+
+backup_dir=/var/lib/nethserver/backup/rh-mariadb101/
+
+exec /bin/rm -f $backup_dir/*.dump

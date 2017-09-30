@@ -1,0 +1,13 @@
+{
+my $mariadb101 = ${'rh-mariadb101-mariadb'}{'status'} || 'disabled';
+my $tcp = ${'rh-mariadb101-mariadb'}{'TCPPort'} || '3311';
+my $access = ${'rh-mariadb101-mariadb'}{'access'} || 'none';
+
+if (($mariadb101 eq 'enabled') && (($access eq 'public')|| ($access eq 'private'))) {
+
+    $OUT .= "#\n# rh-mariadb101-mariadb\n#\n";
+    $OUT .= "?COMMENT Enable rh-mariadb101-mariadb\n";
+    $OUT .= "ACCEPT\tnet\t\$FW\ttcp\t$tcp\n" if ($access eq 'public');
+    $OUT .= "ACCEPT\tloc\t\$FW\ttcp\t$tcp\n";
+    }
+}

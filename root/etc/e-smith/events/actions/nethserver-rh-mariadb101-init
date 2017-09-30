@@ -1,0 +1,61 @@
+#!/bin/sh
+
+#
+# Copyright (C) 2002 Mitel Networks Corporation
+# Copyright (C) 2013 Nethesis S.r.l.
+# http://www.nethesis.it - support@nethesis.it
+# 
+# This script is part of NethServer.
+# 
+# NethServer is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License,
+# or any later version.
+# 
+# NethServer is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with NethServer.  If not, see <http://www.gnu.org/licenses/>.
+#
+
+. /etc/rc.d/init.d/functions
+
+for i in $(seq 1 10)
+do
+    if test -e /var/lib/rh-mariadb101/mariadb.sock
+    then
+	exit_value=0
+	HOME=/root
+	export HOME
+	for link in $(find /etc/e-smith/sql/init101 -type f -o -type l | sort)
+	do
+	    F=$(basename $link | sed 's/S\?[0-9][0-9]_\?//')
+	    case $F in
+		*.sql)
+                action "Loading $F into mysql101" perl -e '
+                     open (STDERR, "|/usr/bin/logger -p local1.info -t mysql101.init");
+                     open (STDOUT, ">&STDERR");
+                     exec "/usr/bin/mysql101";' < $link && /bin/rm $link
+                ;;
+		*)
+                action "Loading $F into mysql101" perl -e '
+                     open (STDERR, "|/usr/bin/logger -p local1.info -t mysql101.init");
+                     open (STDOUT, ">&STDERR");
+                     exec shift; ' $link && /bin/rm $link
+                ;;
+	    esac
+	    # Record any failure for the final return value.
+	    if [ $? -ne 0 ]; then
+		exit_value=1
+	    fi
+	done 
+	exit $exit_value
+    fi
+    echo "Waiting for mysql101 to startup" >&2
+    sleep 2
+done
+
+exit 1
