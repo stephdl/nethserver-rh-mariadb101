@@ -9,7 +9,7 @@ if [ ! -f $backup_dir/mysql.dump ]; then
     exit 0
 fi
 
-echo "Restoring mariadb backup...";
+echo "Restoring mariadb101 backup...";
 /usr/bin/systemctl status rh-mariadb101-mariadb  >/dev/null
 if [ $? -eq 0 ]; then
     /usr/bin/systemctl stop rh-mariadb101-mariadb >/dev/null
@@ -39,8 +39,7 @@ newpass=$(cat /var/lib/nethserver/secrets/mysql)
 /usr/bin/mysql101 mysql -u root -e "update user set password=PASSWORD(\"$newpass\") where User='root'; flush privileges;"
 
 # Stop all mysql instances
-pkill -f /opt/rh/rh-mariadb101/root/usr/libexec/mysqld
-sleep 1
+/usr/bin/mysqladmin101 shutdown
 
 # restart mysqld as normal daemon
 /usr/bin/systemctl restart rh-mariadb101-mariadb

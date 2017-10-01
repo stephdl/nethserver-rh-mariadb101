@@ -1,6 +1,6 @@
 Summary: NethServer mariadb101 configuration and templates.
 Name: nethserver-rh-mariadb101
-Version: 0.0.3
+Version: 0.0.4
 Release: 1%{?dist}
 License: GPL
 Group: Networking/Daemons
@@ -62,6 +62,10 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 %dir %{_nseventsdir}/%{name}-update
 %changelog
+* Sun Oct 1  2017 stephane de Labrusse <stephdl@de-labrusse.fr> 0.0.4
+- Stop mysqld_safe with 'mysqladmin101 shutdown'
+- Restore the root password with post-restore-config
+
 * Sat Sep 30 2017 stephane de Labrusse <stephdl@de-labrusse.fr> 0.0.3
 - Added phpMyAdmin configuration template
 

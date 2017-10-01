@@ -14,6 +14,7 @@ event_actions($event,
               'rh-mariadb101-mysqld_service' => '20',
               'nethserver-phpmyadmin-mariadbsettings-conf' => '25',
               'nethserver-phpmyadmin-mariadb101-conf' => '30');
+
 templates2events("/etc/opt/rh/rh-mariadb101/my.cnf.d/mariadb-server.cnf",  $event);
 templates2events("/etc/logrotate.d/rh-mariadb101-mariadb",  $event);
 templates2events("/opt/rh/rh-mariadb101/root/bin/set.password",  $event);
@@ -58,9 +59,15 @@ event_actions($event,
                      'rh-mariadb101-load-tables' => '02',
                      'rh-mariadb101-delete-dumped-tables' => '60',
                      'rh-mariadb101-mysqld_service' => '90');
+templates2events("/etc/opt/rh/rh-mariadb101/my.cnf.d/mariadb-server.cnf",  $event);
+templates2events("/root/.my.cnf",  $event);
 
-#templates2events("/etc/my.cnf",  $event);
-#templates2events("/root/.my.cnf",  $event);
 
+#
+# event post-restore-config
+#
+event_actions('post-restore-config', qw(
+    nethserver-mariadb-restore-config 50
+));
 
 exit;

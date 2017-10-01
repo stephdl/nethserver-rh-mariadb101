@@ -1,0 +1,20 @@
+#!/bin/bash
+
+
+if [[ ! -f /var/opt/rh/rh-mariadb101/lib/mysql/mysql/user.frm ]]; then 
+   # mariadb101 is not configured, nothing to do
+   exit 0
+fi
+
+echo "[NOTICE] restoring mariadb101 root password"
+
+# read password from backup-config
+newpass=$(cat /var/lib/nethserver/secrets/mysql)
+/usr/bin/mysql101 mysql -u root <<EOF
+	update user set password=PASSWORD("$newpass") where User='root'; 
+	flush privileges;
+EOF
+
+# update .my.cnf with new password
+/sbin/e-smith/expand-template /root/.my.cnf
+
