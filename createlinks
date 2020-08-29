@@ -13,7 +13,8 @@ event_actions($event,
               'nethserver-rh-mariadb101-conf' => '10',
               'rh-mariadb101-mysqld_service' => '20',
               'nethserver-phpmyadmin-mariadbsettings-conf' => '25',
-              'nethserver-phpmyadmin-mariadb101-conf' => '30');
+              'nethserver-phpmyadmin-mariadb101-conf' => '30',
+              'nethserver-rh-mariadb101-phpmyadmin-save-event' => '95');
 
 templates2events("/etc/opt/rh/rh-mariadb101/my.cnf.d/mariadb-server.cnf",  $event);
 templates2events("/etc/logrotate.d/rh-mariadb101-mariadb",  $event);

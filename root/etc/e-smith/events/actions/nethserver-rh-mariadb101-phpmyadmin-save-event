@@ -1,0 +1,5 @@
+#!/bin/bash
+
+if [[  -f '/etc/e-smith/db/configuration/defaults/phpmyadmin/status' ]]; then
+    /usr/sbin/e-smith/signal-event nethserver-phpmyadmin-save
+fi
